@@ -1,0 +1,29 @@
+
+services:
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: order_user
+      POSTGRES_PASSWORD: order_pass
+      POSTGRES_DB: order_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+
+  order-service:
+    build:
+      context: ./services/order-service
+    container_name: order-service
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./services/order-service/.env
+    depends_on:
+      - order-db
+
+volumes:
+  order_db_data:

@@ -1,4 +1,3 @@
-
 services:
   order-db:
     image: postgres:16
@@ -25,5 +24,31 @@ services:
     depends_on:
       - order-db
 
+  inventory-db:
+    image: postgres:16
+    container_name: inventory-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: inventory_user
+      POSTGRES_PASSWORD: inventory_pass
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+
+  inventory-service:
+    build:
+      context: ./services/inventory-service
+    container_name: inventory-service
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./services/inventory-service/.env
+    depends_on:
+      - inventory-db
+
 volumes:
   order_db_data:
+  inventory_db_data:
